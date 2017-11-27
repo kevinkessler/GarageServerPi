@@ -1,0 +1,30 @@
+logging:
+  version: 1
+  formatters:
+    mqtt_formatter:
+        format: '{ "time":"%(asctime)s","name":"%(name)s","levelname":"%(levelname)s","lineno":"%(lineno)s","module":"%(module)s","message":"%(message)s"}'
+
+  handlers:
+    mqtt_handler:
+      class: mqtthandler.MQTTHandler
+      host: 127.0.0.1
+      topic: 'gserv/logger/'
+      qos: 1
+      level: DEBUG
+      formatter: mqtt_formatter
+
+  root:
+    level: INFO
+    handlers: 
+      - mqtt_handler
+
+mqtt_client_name: Max44009Module
+max_addr: 0x4a
+lux_topic: gserv/sensors/lux
+si_addr: 0x40
+temp_topic: gserv/sensors/temp
+hum_topic: gserv/sensors/hum
+hih_addr: 0x27
+temp_topic2: gserv/sensors/temp2
+hum_topic2: gserv/sensors/hum2
+sub_topic: gserv/sensors

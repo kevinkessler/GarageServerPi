@@ -1,0 +1,36 @@
+logging:
+  version: 1
+  formatters:
+    mqtt_formatter:
+        format: '{ "time":"%(asctime)s","name":"%(name)s","levelname":"%(levelname)s","lineno":"%(lineno)s","module":"%(module)s","message":"%(message)s"}'
+
+  handlers:
+    mqtt_handler:
+      class: mqtthandler.MQTTHandler
+      host: 127.0.0.1
+      topic: 'gserv/logger/test_mod'
+      qos: 1
+      level: INFO
+      formatter: mqtt_formatter
+
+  root:
+    level: INFO
+    handlers: 
+      - mqtt_handler
+mqtt_client_name: ButtonModule
+sub_topic: gserv/button/#
+buttons:
+  - topic: 'gserv/button/button1'
+    # Pin number in Wiring Pi numberscheme 
+    pin: 15
+    # Pull Up/Down, can be PUD_UP, PUD_DOWN, PUD_OFF
+    pupdown: PUD_OFF
+    # Interrupt Edge Trigger type, INT_EDGE_FALLING, INT_EDGE_RISING, INT_EDGE_BOTH, INT_EDGE_SETUP
+    edge_type: INT_EDGE_FALLING
+    # Debounce time in ms
+    debounce: 5
+  - topic: 'gserv/button/button2'
+    pin: 16
+    pupdown: PUD_OFF
+    edge_type: INT_EDGE_FALLING
+    debounce: 5

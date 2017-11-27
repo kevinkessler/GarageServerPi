@@ -1,0 +1,21 @@
+logging:
+  version: 1
+  disable_existing_loggers: true
+  formatters:
+    loggly_format:
+      datefmt: ""
+      format: '%(message)s'
+  handlers:
+    loggly_handler:
+      class: loggly.handlers.HTTPSHandler
+      formatter: loggly_format
+      url: "https://logs-01.loggly.com/inputs/f373fbcc-a0b1-45b0-a91d-5be8c625d150/tag/python"
+      level: DEBUG
+  root:
+    level: INFO
+    handlers:
+      - loggly_handler
+
+sub_topic: "gserv/logger/#"
+mqtt_client_name: "LogglyLogger"
+lock_port: 3535
