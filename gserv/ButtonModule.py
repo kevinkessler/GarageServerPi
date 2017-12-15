@@ -18,10 +18,10 @@ Copyright (C) 2018 Kevin Kessler
 from gserv.BaseModule import BaseModule
 from gserv.Button import Button
 from multiprocessing import Pipe
-import logging
 import sys
 import wiringpi
 import threading
+import logging
 
 
 class ButtonModule(BaseModule):
@@ -29,9 +29,10 @@ class ButtonModule(BaseModule):
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
 
+    logger = logging.getLogger(__name__)
     if "buttons" not in self.config:
-      print("No buttons Configuration in {}".config_file)
-      sys.exit(-1)
+      logger.error("No buttons Configuration in {}".config_file)
+      self.config['buttons'] = []
 
     self.button_pipes = {}
     (self.recvQueue, q) = Pipe()
@@ -40,14 +41,14 @@ class ButtonModule(BaseModule):
       try:
         getattr(wiringpi.GPIO, b["pupdown"])
       except AttributeError:
-        print("Button On topic {}, pupdown value {} is invalid".format(b["topic"], b["pupdown"]))
-        sys.exit(-1)
+        logger.error("Button On topic {}, pupdown value {} is invalid".format(b["topic"], b["pupdown"]))
+        continue
 
       try:
         getattr(wiringpi.GPIO, b["edge_type"])
       except AttributeError:
-        print("Button On topic {}, pupdown value {} is invalid".format(b["topic"], b["edge_type"]))
-        sys.exit(-1)
+        logger.error("Button On topic {}, pupdown value {} is invalid".format(b["topic"], b["edge_type"]))
+        continue
 
       (parent_pipe, child_pipe) = Pipe()
       self.button_pipes[b['topic']] = parent_pipe
@@ -62,21 +63,19 @@ class ButtonModule(BaseModule):
     msg = message.payload.decode('utf-8')
     if msg == '?':
       if message.topic in self.button_pipes:
-        print("**>")
         self.button_pipes[message.topic].send('?')
-        print("<**")
 
   def _pipeThread(self, topic):
     while True:
       msg = self.button_pipes[topic].recv()
       if isinstance(msg, list) and len(msg) == 2:
-        print("~~>")
         self.mqtt_client.publish(msg[0], msg[1], qos=1)
-        print("<~~")
 
 
 def main():
-  buttonMod = ButtonModule('./buttons.yaml', './secure.yaml')
+  buttonMod = ButtonModule('config/buttons.yaml', 'config/secure.yaml')
+  logger = logging.getLogger(__name__)
+  logger.info("ButtonModule starting")
   buttonMod.run()
 
 

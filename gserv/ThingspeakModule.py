@@ -67,6 +67,8 @@ class ThingspeakModule(BaseModule):
 
 def main():
   thingMod = ThingspeakModule('./thingspeak.yaml', './secure.yaml')
+  logger = logging.getLogger(__name__)
+  logger.info("ThingspeakModule starting")
   thingMod.run()
 
 

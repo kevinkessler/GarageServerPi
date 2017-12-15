@@ -98,6 +98,8 @@ class SensorModule(BaseModule):
 
 def main():
   sensorMod = SensorModule('./sensor.yaml', './secure.yaml')
+  logger = logging.getLogger(__name__)
+  logger.info("SendorModule starting")
   sensorMod.run()
 
 

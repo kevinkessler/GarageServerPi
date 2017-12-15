@@ -41,6 +41,7 @@ class LedsModule(BaseModule):
       "BLANK": SolidPattern,
       "GREEN_CLOCKWISE": SpinPattern,
       "RED_CLOCKWISE": SpinPattern,
+      "RED_COUNTERCLOCKWISE": SpinPattern,
       "BLUE_CLOCKWISE": SpinPattern,
       "BLUE_COUNTERCLOCKWISE": SpinPattern,
       "CYAN_CLOCKWISE": SpinPattern,
@@ -121,6 +122,8 @@ class LedsModule(BaseModule):
 
 def main():
   ledsMod = LedsModule('config/leds.yaml', 'config/secure.yaml')
+  logger = logging.getLogger(__name__)
+  logger.info("LedsModule starting")
   ledsMod.run()
 
 

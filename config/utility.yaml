@@ -9,7 +9,7 @@ logging:
     loggly_handler:
       class: loggly.handlers.HTTPSHandler
       formatter: loggly_format
-      url: "https://logs-01.loggly.com/inputs/f373fbcc-a0b1-45b0-a91d-5be8c625d150/tag/python"
+      url: "https://logs-01.loggly.com/inputs/{{ loggly_tag }}/tag/gserv"
       level: DEBUG
   root:
     level: INFO

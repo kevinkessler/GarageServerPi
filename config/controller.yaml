@@ -1,0 +1,51 @@
+logging:
+  version: 1
+  formatters:
+    loggly_formatter:
+        format: '{ "time":"%(asctime)s","name":"%(name)s","levelname":"%(levelname)s","lineno":"%(lineno)s","module":"%(module)s","message":"%(message)s"}'
+
+  handlers:
+    loggly_handler:
+      class: loggly.handlers.HTTPSHandler
+      formatter: loggly_formatter
+      url: "https://logs-01.loggly.com/inputs/{{ loggly_key }}/tag/gserv"
+      level: DEBUG
+    state_handler:
+      class: loggly.handlers.HTTPSHandler
+      formatter: loggly_formatter
+      url: "https://logs-01.loggly.com/inputs/{{ loggly_key }}/tag/door_state"
+      level: DEBUG      
+
+  root:
+    level: DEBUG
+    handlers:
+      - loggly_handler
+
+  loggers:
+    door_state:
+      level: INFO
+      propagate: False
+      handlers:
+        - state_handler
+
+mqtt_client_name: ControllerModule
+sub_topic: "gserv/#"
+button_topic: 'gserv/button'
+open_button: 'open_hall'
+close_button: 'close_hall'
+hold_button: 'hold'
+hold_led: 'gserv/switch/hold_led'
+led_topic: 'gserv/leds'
+piezo_topic: 'gserv/switch/piezo'
+door_control_topic: 'gserv/switch/door'
+camera_topic: 'gserv/camera'
+camera_delay: 120.0
+
+# Texter Config
+smtp_user: {{ gmail_user }}
+smtp_password: {{ gmail_password }}
+to_addrs: {{ text_to_addrs }}
+smtp_server: 'smtp.gmail.com'
+smtp_port: 587
+
+

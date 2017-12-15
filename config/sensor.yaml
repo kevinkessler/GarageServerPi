@@ -1,22 +1,20 @@
 logging:
   version: 1
   formatters:
-    mqtt_formatter:
+    loggly_formatter:
         format: '{ "time":"%(asctime)s","name":"%(name)s","levelname":"%(levelname)s","lineno":"%(lineno)s","module":"%(module)s","message":"%(message)s"}'
 
   handlers:
-    mqtt_handler:
-      class: mqtthandler.MQTTHandler
-      host: 127.0.0.1
-      topic: 'gserv/logger/'
-      qos: 1
+    loggly_handler:
+      class: loggly.handlers.HTTPSHandler
+      formatter: loggly_formatter
+      url: "https://logs-01.loggly.com/inputs/{{ loggly_key }}/tag/gserv"
       level: DEBUG
-      formatter: mqtt_formatter
 
   root:
     level: INFO
-    handlers: 
-      - mqtt_handler
+    handlers:
+      - loggly_handler
 
 mqtt_client_name: Max44009Module
 max_addr: 0x4a

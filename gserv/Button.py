@@ -19,6 +19,8 @@ import wiringpi
 import threading
 import multiprocessing
 import time
+import logging
+
 """
 Had to spawn these off as processes, because wiringpi segfaults on the ISR when the MQTT thread is started,
 or time.sleep is run in the same process
@@ -41,11 +43,16 @@ class Button(multiprocessing.Process):
     self.timer_target = 0
 
   def run(self):
-    wiringpi.wiringPiSetup()
+    logger = logging.getLogger(__name__)
+    logger.debug("Setting up Button {} on pin {}".format(self.topic, self.pin))
 
+    wiringpi.wiringPiSetup()
     wiringpi.pinMode(self.pin, wiringpi.GPIO.INPUT)
     wiringpi.pullUpDnControl(self.pin, getattr(wiringpi.GPIO, self.pull_resistor))
     wiringpi.wiringPiISR(self.pin, getattr(wiringpi.GPIO, self.edge_type), self._button_callback)
+
+    # Force sending state info on MQTT Topic on startup
+    self.pipe.send([self.topic, self._readString(wiringpi.digitalRead(self.pin))])
 
     t = threading.Thread(target=self._queue_thread)
     t.setDaemon(True)
@@ -76,7 +83,7 @@ class Button(multiprocessing.Process):
 
   def _readString(self, state):
       mes = "HIGH"
-      if self.pin_state == wiringpi.GPIO.LOW:
+      if state == wiringpi.GPIO.LOW:
         mes = "LOW"
 
       return mes
@@ -85,7 +92,4 @@ class Button(multiprocessing.Process):
     while True:
       msg = self.pipe.recv()
       if isinstance(msg, str) and msg == '?':
-        print("->")
         self.pipe.send([self.topic, self._readString(wiringpi.digitalRead(self.pin))])
-        print("<-")
-
