@@ -105,7 +105,6 @@ class ControllerModule(BaseModule):
   a problem occurred.
   '''
   def _process_hall_sensors(self, button, state):
-    self._piezo("OFF")
     if self.command_response_timer is not None:
       logger = logging.getLogger(__name__)
       logger.debug("Command Delay Timer canceled")
