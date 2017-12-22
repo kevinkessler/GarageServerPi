@@ -18,7 +18,6 @@ Copyright (C) 2018 Kevin Kessler
 from gserv.BaseModule import BaseModule
 from gserv.Button import Button
 from multiprocessing import Pipe
-import sys
 import wiringpi
 import threading
 import logging

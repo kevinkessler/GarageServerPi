@@ -43,10 +43,16 @@ class ThingspeakModule(BaseModule):
 
     while True:
       time.sleep(60)
-      payload = 'api_key=' + self.api_key + '&field1=' + self.lux + '&field2=' + self.temp1 + '&field3=' + self.hum1 + '&field4=' + self.temp2 + '&field5=' + self.hum2
+      with open('/etc/armbianmonitor/datasources/soctemp', 'r') as f:
+        t = f.read()
+      cpu_temp = int(t)
+
+      payload = ('api_key=' + self.api_key + '&field1=' + self.lux +
+        '&field2=' + self.temp1 + '&field3=' + self.hum1 + '&field4=' +
+        self.temp2 + '&field5=' + self.hum2 + '&field6=' + cpu_temp)
       r = requests.post('https://api.thingspeak.com/update', data=payload)
       if r.status_code != 200:
-        logger=logging.getLogger(__name__)
+        logger = logging.getLogger(__name__)
         logger.warn("Error calling ThingSpeak {}, {}".format(r.status_code, r.text))
 
   def on_message(self, client, userdata, message):
