@@ -49,7 +49,7 @@ class ThingspeakModule(BaseModule):
 
       payload = ('api_key=' + self.api_key + '&field1=' + self.lux +
         '&field2=' + self.temp1 + '&field3=' + self.hum1 + '&field4=' +
-        self.temp2 + '&field5=' + self.hum2 + '&field6=' + cpu_temp)
+        self.temp2 + '&field5=' + self.hum2 + '&field6=' + str(cpu_temp))
       r = requests.post('https://api.thingspeak.com/update', data=payload)
       if r.status_code != 200:
         logger = logging.getLogger(__name__)
