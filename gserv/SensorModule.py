@@ -60,17 +60,17 @@ class SensorModule(BaseModule):
 
   def post_temp(self):
     logger = logging.getLogger(__name__)
-    data = self.bus.read_word_data(0x40, 0xe5)
+    data = self.bus.read_word_data(0x40,0xe5)
     data_l = (data & 0xff00) >> 8
     data_h = data & 0x00ff
-    hum = ((data_h * 256 + data_l) * 125 / 65536.0) - 6
+    hum = ((data_h * 256 + data_l ) * 125 / 65536.0) - 6
     logger.debug("Hum1 = {}".format(hum))
     self.mqtt_client.publish(self.hum_topic, str(hum), retain=True)
 
-    data = self.bus.read_word_data(0x40, 0xe0)
+    data = self.bus.read_word_data(0x40,0xe0)
     data_l = (data & 0xff00) >> 8
-    data_h = data & 0x00ff
-    temp = ((data_h * 256 + data_l) * 175.72 / 65536.0) - 46.85
+    data_h = data & 0x00ff    
+    temp = ((data_h * 256 + data_l) * 175.72 / 65536.0) -46.85
     logger.debug("Temp1 = {}".format(temp))
     self.mqtt_client.publish(self.temp_topic, str(temp), retain=True)
 
@@ -85,6 +85,7 @@ class SensorModule(BaseModule):
     self.mqtt_client.publish(self.temp_topic2, str(cTemp), retain=True)
     self.mqtt_client.publish(self.hum_topic2, str(humidity), retain=True)
 
+
   def lightReading(self, data_h, data_l):
     exp = (data_h & 0xF0) >> 4
     mant = ((data_h & 0x0F) << 4) | (data_l & 0x0F)
@@ -96,7 +97,7 @@ class SensorModule(BaseModule):
 
 
 def main():
-  sensorMod = SensorModule('./sensor.yaml', './secure.yaml')
+  sensorMod = SensorModule('config/sensor.yaml', 'config/secure.yaml')
   logger = logging.getLogger(__name__)
   logger.info("SendorModule starting")
   sensorMod.run()

@@ -72,7 +72,7 @@ class ThingspeakModule(BaseModule):
       logger.warn("Unknown Sensor Reading on {}, {}".format(message.topic, msg))
 
 def main():
-  thingMod = ThingspeakModule('./thingspeak.yaml', './secure.yaml')
+  thingMod = ThingspeakModule('config/thingspeak.yaml', 'config/secure.yaml')
   logger = logging.getLogger(__name__)
   logger.info("ThingspeakModule starting")
   thingMod.run()
