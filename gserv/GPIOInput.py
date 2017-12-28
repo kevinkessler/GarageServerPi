@@ -27,7 +27,7 @@ or time.sleep is run in the same process
 """
 
 
-class Button(multiprocessing.Process):
+class GPIOInput(multiprocessing.Process):
 
   def __init__(self, pin, edge_type, debounce_time, pull_resistor, topic, pipe):
     multiprocessing.Process.__init__(self)

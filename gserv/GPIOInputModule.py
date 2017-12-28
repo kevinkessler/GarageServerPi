@@ -16,7 +16,7 @@ Copyright (C) 2018 Kevin Kessler
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 from gserv.BaseModule import BaseModule
-from gserv.Button import Button
+from gserv.GPIOInput import GPIOInput
 from multiprocessing import Pipe
 import wiringpi
 import threading
@@ -29,29 +29,29 @@ class GPIOInputModule(BaseModule):
     BaseModule.__init__(self, config_file, secure_file)
 
     logger = logging.getLogger(__name__)
-    if "buttons" not in self.config:
-      logger.error("No buttons Configuration in {}".config_file)
-      self.config['buttons'] = []
+    if "inputs" not in self.config:
+      logger.error("No inputs Configuration in {}".config_file)
+      self.config['inputs'] = []
 
-    self.button_pipes = {}
+    self.input_pipes = {}
     (self.recvQueue, q) = Pipe()
 
-    for b in self.config["buttons"]:
+    for b in self.config["inputs"]:
       try:
         getattr(wiringpi.GPIO, b["pupdown"])
       except AttributeError:
-        logger.error("Button On topic {}, pupdown value {} is invalid".format(b["topic"], b["pupdown"]))
+        logger.error("Input On topic {}, pupdown value {} is invalid".format(b["topic"], b["pupdown"]))
         continue
 
       try:
         getattr(wiringpi.GPIO, b["edge_type"])
       except AttributeError:
-        logger.error("Button On topic {}, pupdown value {} is invalid".format(b["topic"], b["edge_type"]))
+        logger.error("Input On topic {}, pupdown value {} is invalid".format(b["topic"], b["edge_type"]))
         continue
 
       (parent_pipe, child_pipe) = Pipe()
-      self.button_pipes[b['topic']] = parent_pipe
-      bobj = Button(b["pin"], b["edge_type"], b["debounce"] / 1000.0, b["pupdown"], b["topic"], child_pipe)
+      self.input_pipes[b['topic']] = parent_pipe
+      bobj = GPIOInput(b["pin"], b["edge_type"], b["debounce"] / 1000.0, b["pupdown"], b["topic"], child_pipe)
       bobj.start()
 
       t = threading.Thread(name="queueReader" + b["topic"], target=self._pipeThread, args=(b["topic"],))
