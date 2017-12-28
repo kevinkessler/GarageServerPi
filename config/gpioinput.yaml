@@ -37,3 +37,13 @@ buttons:
     pupdown: PUD_OFF
     edge_type: INT_EDGE_BOTH
     debounce: 5
+  - topic: 'gserv/button/pir'
+    pin: 3
+    pupdown: PUD_OFF
+    edge_type: INT_EDGE_RISING
+    debounce: 5
+  - topic: 'gserv/button/hold'
+    pin: 15
+    pupdown: PUD_OFF
+    edge_type: INT_EDGE_RISING
+    debounce: 5

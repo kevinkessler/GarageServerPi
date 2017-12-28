@@ -1,5 +1,5 @@
 '''
-Button Control Module for Garage Server
+GPIO Input Control Module for Garage Server
 Copyright (C) 2018 Kevin Kessler
 
     This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@ import threading
 import logging
 
 
-class ButtonModule(BaseModule):
+class GPIOInputModule(BaseModule):
 
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
@@ -72,10 +72,10 @@ class ButtonModule(BaseModule):
 
 
 def main():
-  buttonMod = ButtonModule('config/buttons.yaml', 'config/secure.yaml')
+  giMod = GPIOInputModule('config/gpioinput.yaml', 'config/secure.yaml')
   logger = logging.getLogger(__name__)
-  logger.info("ButtonModule starting")
-  buttonMod.run()
+  logger.info("GPIOInputModule starting")
+  giMod.run()
 
 
 if __name__ == "__main__":

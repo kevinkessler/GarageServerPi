@@ -34,12 +34,13 @@ button_topic: 'gserv/button'
 open_button: 'open_hall'
 close_button: 'close_hall'
 hold_button: 'hold'
+pir_button: 'pir'
 hold_led: 'gserv/switch/hold_led'
 led_topic: 'gserv/leds'
 piezo_topic: 'gserv/switch/piezo'
 door_control_topic: 'gserv/switch/door'
 camera_topic: 'gserv/camera'
-camera_delay: 120.0
+light_level_topic: 'gserv/sensors/lux'
 
 # Texter Config
 smtp_user: {{ gmail_user }}
@@ -47,5 +48,17 @@ smtp_password: {{ gmail_password }}
 to_addrs: {{ text_to_addrs }}
 smtp_server: 'smtp.gmail.com'
 smtp_port: 587
+# length of time to wait for Camera Module to publish a path name of a new picture
+picture_delay: 120.0
+
+#PIR Config
+# Lux value below which the lights are turned on
+min_light_level: 20
+light_switch: 'gserv/switch/light'
+# time to wait before processing another PIR event
+retrigger_delay: 300
+# time to wait from sensed mostion to actually taking the picture
+snapshot_delay: 2
+
 
 

@@ -32,7 +32,7 @@ class Texter():
     self.smtp_server = config['smtp_server']
     self.smtp_port = config['smtp_port']
     self.camera_topic = config['camera_topic']
-    self.camera_delay = config['camera_delay']
+    self.camera_delay = config['picture_delay']
     self.mqtt_client = mqtt_client
     self.pic_timer = None
 
@@ -43,13 +43,10 @@ class Texter():
   the text
   '''
   def send_text(self, message_text, send_pic):
-    logger = logging.getLogger(__name__)
     if send_pic:
       if self.pic_timer is not None:
-        logger.debug("Text requested while waiting for picture, just sending characters")
         self._mail_text(message_text, None)
       else:
-        logger.debug("Text waiting for picture")
         self.mqtt_client.publish(self.camera_topic, '?')
         self.pic_timer = threading.Timer(self.camera_delay, self._failed_pic,
           args=[message_text])
@@ -63,10 +60,7 @@ class Texter():
   listening to the mqtt camera topic
   '''
   def receive_picture(self, picture_path):
-    logger = logging.getLogger(__name__)
-    logger.debug("Picture Received")
     if self.pic_timer is not None:
-      logger.debug("Picture to be sent")
       self.pic_timer.cancel()
       message_text = self.pic_timer.args[0]
       self.pic_timer = None
@@ -118,5 +112,5 @@ class Texter():
   def _failed_pic(self, message_text):
     logger = logging.getLogger(__name__)
     logger.error("Texter timed out waiting for picture")
-    self.pic_timer = None
+
     self._mail_text(message_text, None)

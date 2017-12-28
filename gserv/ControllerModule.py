@@ -17,6 +17,7 @@ Copyright (C) 2018 Kevin Kessler
 '''
 from gserv.BaseModule import BaseModule
 from gserv.Texter import Texter
+from gserv.PIR import PIR
 import logging
 import enum
 import threading
@@ -32,6 +33,8 @@ class ControllerModule(BaseModule):
     self.close_button = self.config['close_button']
     self.open_button = self.config['open_button']
     self.hold_button = self.config['hold_button']
+    self.pir_button = self.config['pir_button']
+    self.light_level_topic = self.config['light_level_topic']
     self.hold_led = self.config['hold_led']
 
     self.open_state = "XX"
@@ -62,6 +65,7 @@ class ControllerModule(BaseModule):
     }
 
     self.texter = Texter(self.config, self.mqtt_client)
+    self.PIR = PIR(self.config, self.mqtt_client)
 
     self._get_door_state()
 
@@ -73,6 +77,8 @@ class ControllerModule(BaseModule):
     if message.topic == self.camera_topic:
       if msg != '?':
         self.texter.receive_picture(msg)
+    elif message.topic == self.light_level_topic:
+      self.PIR.light_level(msg)
     elif message.topic.startswith(self.button_topic):
       button_list = message.topic.split('/')
       button = button_list[len(button_list) - 1]
@@ -94,6 +100,8 @@ class ControllerModule(BaseModule):
     if button == self.hold_button:
       if state == "HIGH":
         self._process_hold()
+    elif button == self.pir_button:
+      self.PIR.motion_detected(state)
     elif button == self.close_button or button == self.open_button:
       self._process_hall_sensors(button, state)
 
