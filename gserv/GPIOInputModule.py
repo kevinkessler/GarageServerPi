@@ -61,12 +61,12 @@ class GPIOInputModule(BaseModule):
   def on_message(self, client, userdata, message):
     msg = message.payload.decode('utf-8')
     if msg == '?':
-      if message.topic in self.button_pipes:
-        self.button_pipes[message.topic].send('?')
+      if message.topic in self.input_pipes:
+        self.input_pipes[message.topic].send('?')
 
   def _pipeThread(self, topic):
     while True:
-      msg = self.button_pipes[topic].recv()
+      msg = self.input_pipes[topic].recv()
       if isinstance(msg, list) and len(msg) == 2:
         self.mqtt_client.publish(msg[0], msg[1], qos=1)
 

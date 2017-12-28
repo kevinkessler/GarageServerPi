@@ -21,9 +21,9 @@ logging:
       - loggly_handler
       - console
 mqtt_client_name: ButtonModule
-sub_topic: gserv/button/#
-buttons:
-  - topic: 'gserv/button/close_hall'
+sub_topic: gserv/gpioinput/#
+inputs:
+  - topic: 'gserv/gpioinput/close_hall'
     # Pin number in Wiring Pi numberscheme 
     pin: 0
     # Pull Up/Down, can be PUD_UP, PUD_DOWN, PUD_OFF
@@ -32,17 +32,17 @@ buttons:
     edge_type: INT_EDGE_BOTH
     # Debounce time in ms
     debounce: 5
-  - topic: 'gserv/button/open_hall'
+  - topic: 'gserv/gpioinput/open_hall'
     pin: 2
     pupdown: PUD_OFF
     edge_type: INT_EDGE_BOTH
     debounce: 5
-  - topic: 'gserv/button/pir'
+  - topic: 'gserv/gpioinput/pir'
     pin: 3
     pupdown: PUD_OFF
     edge_type: INT_EDGE_RISING
     debounce: 5
-  - topic: 'gserv/button/hold'
+  - topic: 'gserv/gpioinput/hold'
     pin: 15
     pupdown: PUD_OFF
     edge_type: INT_EDGE_RISING
