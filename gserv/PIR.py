@@ -44,7 +44,10 @@ class PIR():
     self.lux_level = None
 
   def light_level(self, lux):
-    self.lux_level = int(lux)
+    try:
+      self.lux_level = float(lux)
+    except ValueError:
+      self.lux_level = 0
 
   def motion_detected(self, motion):
     logger = logging.getLogger(__name__)
