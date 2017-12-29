@@ -26,7 +26,7 @@ class PIR():
     try:
       self.camera_topic = config['camera_topic']
       self.light_switch = config['light_switch']
-      self.min_light_level = config['min_light_level']
+      self.min_lux_level = config['min_light_level']
       self.retrigger_delay = config['retrigger_delay']
       self.snapshot_delay = config['snapshot_delay']
     except KeyError as e:
@@ -41,10 +41,10 @@ class PIR():
     self.retrigger_timer = None
     self.snapshot_timer = None
 
-    self.light_level = None
+    self.lux_level = None
 
   def light_level(self, lux):
-    self.light_level = int(lux)
+    self.lux_level = int(lux)
 
   def motion_detected(self, motion):
     logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class PIR():
       self.retrigger_timer.start()
       self.snapshot_timer = threading.Timer(self.snapshot_delay, self._take_snapshot)
       self.snapshot_timer.start()
-      if self.light_level is not None and self.light_level < self.min_light_level:
+      if self.lux_level is not None and self.lux_level < self.min_lux_level:
         self.mqtt_client.publish(self.light_switch, "ON")
     else:
       logger.debug("PIR Motion Detected, still within the retrigger delay")
