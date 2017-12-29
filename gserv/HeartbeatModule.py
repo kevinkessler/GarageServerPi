@@ -16,6 +16,7 @@ Copyright (C) 2018 Kevin Kessler
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 from gserv.BaseModule import BaseModule
+from gserv.Texter import Texter
 import time
 import logging
 
@@ -29,6 +30,8 @@ class HeartbeatModule(BaseModule):
 
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
+    self.Texter = Texter()
+    self.Texter.send_text("Heartbeat Module Started")
 
   def run(self):
     logger = logging.getLogger(__name__)
@@ -36,6 +39,10 @@ class HeartbeatModule(BaseModule):
     while True:
       logger.info("Heartbeat")
       time.sleep(300)
+
+  def on_message(self, client, userdata, message):
+    msg = message.payload.decode('utf-8')
+    self.Texter.send_text(msg)
 
 
 def main():

@@ -19,18 +19,26 @@ from gserv.BaseModule import BaseModule
 import requests
 import logging
 import time
+import sys
 
 
 class ThingspeakModule(BaseModule):
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
 
-    self.lux_topic = self.config['lux_topic']
-    self.temp_topic = self.config['temp_topic']
-    self.hum_topic = self.config['hum_topic']
-    self.temp_topic2 = self.config['temp_topic2']
-    self.hum_topic2 = self.config['hum_topic2']
-    self.api_key = self.config['thingspeak_api_key']
+    try:
+      self.lux_topic = self.config['lux_topic']
+      self.temp_topic = self.config['temp_topic']
+      self.hum_topic = self.config['hum_topic']
+      self.temp_topic2 = self.config['temp_topic2']
+      self.hum_topic2 = self.config['hum_topic2']
+      self.api_key = self.config['thingspeak_api_key']
+    except KeyError as e:
+      logger = logging.getLogger(__name__)
+      err = "Key error in Thingspeak Init: {}".format(e)
+      logger.error(err)
+      self.mqtt_client.publish('gserv/error', err)
+      sys.exit(2)
 
     self.lux = -1
     self.temp1 = -1

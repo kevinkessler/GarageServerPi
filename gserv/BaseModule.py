@@ -22,12 +22,41 @@ import yaml
 import logging
 import logging.config
 
+"""
+Merge the secure yaml entries into the publicly visible config yaml files
+"""
+
+
+def merge_yaml(config_file, secure_file):
+  if os.path.exists(config_file):
+    with open(config_file, 'r') as f:
+      config_str = f.read()
+  else:
+    return {'Error': 'Config File Not Found'}
+
+  if os.path.exists(secure_file):
+    with open(secure_file, 'r') as f:
+      secure_yaml = yaml.safe_load(f)
+  else:
+    return {'Error': 'Secure File Not Found'}
+
+  for replVar in secure_yaml:
+    if isinstance(secure_yaml[replVar], str):
+        tag = "{{ " + replVar + " }}"
+        config_str = config_str.replace(tag, secure_yaml[replVar])
+
+  return yaml.safe_load(config_str)
+
 
 class BaseModule(object):
   def __init__(self, config_file, secure_file):
     self.is_connected = False
 
-    self.config = self.__merge_yaml(config_file, secure_file)
+    self.config = merge_yaml(config_file, secure_file)
+    if 'Error' in self.config:
+      print("Error {}".self.config['Error'])
+      sys.exit(2)
+
     if 'logging' in self.config:
       logging.config.dictConfig(self.config['logging'])
 
@@ -57,31 +86,6 @@ class BaseModule(object):
     log = logging.getLogger(self.__class__.__name__)
     log.debug("Subscribed")
     pass
-
-  """
-  Merge the secure yaml entries into the publicly visible config yaml files
-  """
-  def __merge_yaml(self, config_file, secure_file):
-    if os.path.exists(config_file):
-      with open(config_file, 'r') as f:
-        config_str = f.read()
-    else:
-      print("Config File Not Found")
-      sys.exit(-1)
-
-    if os.path.exists(secure_file):
-      with open(secure_file, 'r') as f:
-        secure_yaml = yaml.safe_load(f)
-    else:
-      print("Secure File Not Found")
-      sys.exit(-1)
-
-    for replVar in secure_yaml:
-      if isinstance(secure_yaml[replVar], str):
-          tag = "{{ " + replVar + " }}"
-          config_str = config_str.replace(tag, secure_yaml[replVar])
-
-    return yaml.safe_load(config_str)
 
   def run(self):
     self.mqtt_client.loop_forever()

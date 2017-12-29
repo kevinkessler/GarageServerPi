@@ -20,7 +20,7 @@ logging:
     handlers:
       - loggly_handler
       - console
-mqtt_client_name: ButtonModule
+mqtt_client_name: GPIOInputModule
 sub_topic: gserv/gpioinput/#
 inputs:
   - topic: 'gserv/gpioinput/close_hall'

@@ -18,6 +18,7 @@ Copyright (C) 2018 Kevin Kessler
 from gserv.BaseModule import BaseModule
 from gserv.Texter import Texter
 from gserv.PIR import PIR
+import sys
 import logging
 import enum
 import threading
@@ -27,22 +28,29 @@ class ControllerModule(BaseModule):
 
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
-    self.button_topic = self.config['button_topic']
-    self.piezo_topic = self.config['piezo_topic']
-    self.camera_topic = self.config['camera_topic']
-    self.close_button = self.config['close_button']
-    self.open_button = self.config['open_button']
-    self.hold_button = self.config['hold_button']
-    self.pir_button = self.config['pir_button']
-    self.light_level_topic = self.config['light_level_topic']
-    self.hold_led = self.config['hold_led']
+
+    try:
+      self.input_topic = self.config['input_topic']
+      self.piezo_topic = self.config['piezo_topic']
+      self.camera_topic = self.config['camera_topic']
+      self.close_input = self.config['close_input']
+      self.open_input = self.config['open_input']
+      self.hold_input = self.config['hold_input']
+      self.pir_input = self.config['pir_input']
+      self.light_level_topic = self.config['light_level_topic']
+      self.hold_led = self.config['hold_led']
+      self.led_topic = self.config['led_topic']
+      self.piezo_topic = self.config['piezo_topic']
+      self.door_control_topic = self.config['door_control_topic']
+    except KeyError as e:
+      logger = logging.getLogger(__name__)
+      err = "Key error in Controller Init: {}".format(e)
+      logger.error(err)
+      self.mqtt_client.publish('gserv/error', err)
+      sys.exit(2)
 
     self.open_state = "XX"
     self.close_state = "XX"
-
-    self.led_topic = self.config['led_topic']
-    self.piezo_topic = self.config['piezo_topic']
-    self.door_control_topic = self.config['door_control_topic']
 
     self.door_close_timer = None
     self.command_response_timer = None
@@ -64,7 +72,7 @@ class ControllerModule(BaseModule):
       "ERROR": "RED_CLOCKWISE"
     }
 
-    self.texter = Texter(self.config, self.mqtt_client)
+    self.texter = Texter(self.mqtt_client)
     self.PIR = PIR(self.config, self.mqtt_client)
 
     self._get_door_state()
@@ -79,31 +87,31 @@ class ControllerModule(BaseModule):
         self.texter.receive_picture(msg)
     elif message.topic == self.light_level_topic:
       self.PIR.light_level(msg)
-    elif message.topic.startswith(self.button_topic):
-      button_list = message.topic.split('/')
-      button = button_list[len(button_list) - 1]
-      self._process_buttons(button, msg)
+    elif message.topic.startswith(self.input_topic):
+      input_list = message.topic.split('/')
+      input = input_list[len(input_list) - 1]
+      self._process_inputs(input, msg)
 
   '''
-  _get_door_state sends MQTT Messages to the button module requesting
+  _get_door_state sends MQTT Messages to the input module requesting
   the module to send the current state of the hall switches indicating
   the door position
   '''
   def _get_door_state(self):
-    self.mqtt_client.publish(self.button_topic + '/' + self.close_button, '?')
-    self.mqtt_client.publish(self.button_topic + '/' + self.open_button, '?')
+    self.mqtt_client.publish(self.input_topic + '/' + self.close_input, '?')
+    self.mqtt_client.publish(self.input_topic + '/' + self.open_input, '?')
 
   '''
-  _process_buttons handles the button messages from the MQTT handler.
+  _process_inputs handles the input messages from the MQTT handler.
   '''
-  def _process_buttons(self, button, state):
-    if button == self.hold_button:
+  def _process_inputs(self, input, state):
+    if input == self.hold_input:
       if state == "HIGH":
         self._process_hold()
-    elif button == self.pir_button:
+    elif input == self.pir_input:
       self.PIR.motion_detected(state)
-    elif button == self.close_button or button == self.open_button:
-      self._process_hall_sensors(button, state)
+    elif input == self.close_input or input == self.open_input:
+      self._process_hall_sensors(input, state)
 
   '''
   _process_hall_sensors evaluates state changes to the door sensors and set the led
@@ -112,16 +120,16 @@ class ControllerModule(BaseModule):
   auto close timer, the appropriate text message is sent: OPENED after a force close means
   a problem occurred.
   '''
-  def _process_hall_sensors(self, button, state):
+  def _process_hall_sensors(self, input, state):
     if self.command_response_timer is not None:
       logger = logging.getLogger(__name__)
       logger.debug("Command Delay Timer canceled")
       self.command_response_timer.cancel()
       self.command_response_timer = None
 
-    if button == self.close_button:
+    if input == self.close_input:
       self.close_state = state
-    elif button == self.open_button:
+    elif input == self.open_input:
       self.open_state = state
 
     if self.close_state == "LOW" and self.open_state == "HIGH":
@@ -142,7 +150,7 @@ class ControllerModule(BaseModule):
         self._start_timer()
     elif self.close_state == "HIGH" and self.open_state == "HIGH":
       self._stop_timer()
-      if button == self.close_button:
+      if input == self.close_input:
         self.current_state = self.states.OPENING
       else:
         self.current_state = self.states.CLOSING
@@ -180,7 +188,7 @@ class ControllerModule(BaseModule):
       logger.debug("Starting Door Timer {}".format(self.door_close_timer.getName()))
 
   '''
-  _process_hold toggle the state of the hold button. If turned ON, the auto close timer
+  _process_hold toggle the state of the hold input. If turned ON, the auto close timer
   is canceled, if running, the led ring display shows the HOLD pattern, and the HOLD Led
   is turned on. If turned OFF, the timer is started is the door is opened, the ring LED
   display is set to the display pattern appropriate for the current door state, and the

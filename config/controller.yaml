@@ -30,26 +30,18 @@ logging:
 
 mqtt_client_name: ControllerModule
 sub_topic: "gserv/#"
-button_topic: 'gserv/button'
-open_button: 'open_hall'
-close_button: 'close_hall'
-hold_button: 'hold'
-pir_button: 'pir'
-hold_led: 'gserv/switch/hold_led'
+input_topic: 'gserv/gpioinput'
+open_input: 'open_hall'
+close_input: 'close_hall'
+hold_input: 'hold'
+pir_input: 'pir'
+hold_led: 'gserv/gpiooutput/hold_led'
 led_topic: 'gserv/leds'
-piezo_topic: 'gserv/switch/piezo'
-door_control_topic: 'gserv/switch/door'
+piezo_topic: 'gserv/gpiooutput/piezo'
+door_control_topic: 'gserv/gpiooutput/door'
 camera_topic: 'gserv/camera'
 light_level_topic: 'gserv/sensors/lux'
 
-# Texter Config
-smtp_user: {{ gmail_user }}
-smtp_password: {{ gmail_password }}
-to_addrs: {{ text_to_addrs }}
-smtp_server: 'smtp.gmail.com'
-smtp_port: 587
-# length of time to wait for Camera Module to publish a path name of a new picture
-picture_delay: 120.0
 
 #PIR Config
 # Lux value below which the lights are turned on

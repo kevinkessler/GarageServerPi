@@ -15,6 +15,7 @@ Copyright (C) 2018 Kevin Kessler
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+from gserv.BaseModule import merge_yaml
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
@@ -25,7 +26,8 @@ import logging
 
 
 class Texter():
-  def __init__(self, config, mqtt_client):
+  def __init__(self, mqtt_client=None):
+    config = merge_yaml('./config/texter.yaml', './config/secure.yaml')
     self.smtp_user = config['smtp_user']
     self.smtp_password = config['smtp_password']
     self.to_addrs = config['to_addrs']
@@ -42,9 +44,9 @@ class Texter():
   and wait for a response before sending the text. If aleady waiting on a picture, just send
   the text
   '''
-  def send_text(self, message_text, send_pic):
+  def send_text(self, message_text, send_pic=False):
     if send_pic:
-      if self.pic_timer is not None:
+      if self.pic_timer is not None or self.mqtt_client is None:
         self._mail_text(message_text, None)
       else:
         self.mqtt_client.publish(self.camera_topic, '?')

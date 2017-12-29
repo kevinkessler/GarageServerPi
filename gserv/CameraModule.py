@@ -19,6 +19,7 @@ from gserv.BaseModule import BaseModule
 import pygame
 import pygame.camera
 import httplib2
+import sys
 import os
 from apiclient import discovery
 from oauth2client import tools
@@ -39,13 +40,20 @@ class CameraModule(BaseModule):
 
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
-    self.camera_device = self.config['camera_device']
-    self.image_width = self.config['image_width']
-    self.image_height = self.config['image_height']
-    self.picture_path = self.config['picture_path']
-    self.picture_prefix = self.config['picture_prefix']
-    self.camera_topic = self.config['sub_topic']
-    self.google_folder = self.config['google_folder']
+    try:
+      self.camera_device = self.config['camera_device']
+      self.image_width = self.config['image_width']
+      self.image_height = self.config['image_height']
+      self.picture_path = self.config['picture_path']
+      self.picture_prefix = self.config['picture_prefix']
+      self.camera_topic = self.config['sub_topic']
+      self.google_folder = self.config['google_folder']
+    except KeyError as e:
+      logger = logging.getLogger(__name__)
+      err = "Key error in Camera Init: {}".format(e)
+      logger.error(err)
+      self.mqtt_client.publish('gserv/error', err)
+      sys.exit(2)
 
     self.flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 

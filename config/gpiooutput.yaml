@@ -1,0 +1,47 @@
+logging:
+  version: 1
+  formatters:
+    loggly_formatter:
+        format: '{ "time":"%(asctime)s","name":"%(name)s","levelname":"%(levelname)s","lineno":"%(lineno)s","module":"%(module)s","message":"%(message)s"}'
+
+  handlers:
+    loggly_handler:
+      class: loggly.handlers.HTTPSHandler
+      formatter: loggly_formatter
+      url: "https://logs-01.loggly.com/inputs/{{ loggly_key }}/tag/gserv"
+      level: DEBUG
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: loggly_formatter
+
+  root:
+    level: DEBUG
+    handlers:
+      - loggly_handler
+      - console
+
+mqtt_client_name: GPIOOutputModule
+sub_topic: 'gserv/gpiooutput/#'
+outputs:
+    # Type can be momentary, which switches between initial_state to the other state for
+    # active_time seconds, or toggle, which starts at initial_state, and switches to the other
+    # state on demand
+  - topic: 'gserv/gpiooutput/door'
+    pin: 16
+    type: 'momentary'
+    initial_state: 'LOW'
+    active_time: 0.75
+  - topic: 'gserv/gpiooutput/light'
+    pin: 1
+    type: 'momentary'
+    initial_state: 'LOW'
+    active_time: 0.75
+  - topic: 'gserv/gpiooutput/piezo'
+    pin: 4
+    type: 'toggle'
+    initial_state: 'LOW'
+  - topic: 'gserv/gpiooutput/hold_led'
+    pin: 5
+    type: 'toggle'
+    initial_state: 'LOW'

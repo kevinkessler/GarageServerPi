@@ -18,4 +18,4 @@ logging:
 
 
 mqtt_client_name: HeartbeatModule
-sub_topic: "gserv/heartbeat"
+sub_topic: "gserv/error"

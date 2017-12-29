@@ -21,6 +21,7 @@ from gserv.led_patterns.Solid import SolidPattern
 from gserv.led_patterns.Countdown import CountdownPattern
 import wiringpi
 import logging
+import sys
 
 '''
 Module to control 8 WS2812B LEDs. Uses the SPI pin to send out the timing based signal to
@@ -35,7 +36,14 @@ class LedsModule(BaseModule):
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
 
-    self.spi_port = self.config['spi_port']
+    try:
+      self.spi_port = self.config['spi_port']
+    except KeyError as e:
+      logger = logging.getLogger(__name__)
+      err = "Key error in LEDS Init: {}".format(e)
+      logger.error(err)
+      self.mqtt_client.publish('gserv/error', err)
+      sys.exit(2)
 
     self.pattern_classes = {
       "BLANK": SolidPattern,

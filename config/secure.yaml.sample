@@ -1,2 +1,5 @@
 loggly_key: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 thingspeak_key: XXXXXXXXXXXXXXXX
+gmail_user: XXXXXXXXXXXXXXXXXX@gmail.com
+gmail_password: XXXXXXXXXXXXXXXXXX
+text_to_addrs: "##########@vzwpix.com"

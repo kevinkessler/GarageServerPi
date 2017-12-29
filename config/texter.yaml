@@ -1,0 +1,8 @@
+smtp_user: {{ gmail_user }}
+smtp_password: {{ gmail_password }}
+to_addrs: {{ text_to_addrs }}
+smtp_server: 'smtp.gmail.com'
+smtp_port: 587
+# length of time to wait for Camera Module to publish a path name of a new picture
+picture_delay: 120.0
+camera_topic: 'gserv/camera'
