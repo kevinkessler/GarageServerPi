@@ -18,15 +18,23 @@ Copyright (C) 2018 Kevin Kessler
 
 import threading
 import logging
+import sys
 
 
 class PIR():
   def __init__(self, config, mqtt_client):
-    self.camera_topic = config['camera_topic']
-    self.light_switch = config['light_switch']
-    self.min_light_level = config['min_light_level']
-    self.retrigger_delay = config['retrigger_delay']
-    self.snapshot_delay = config['snapshot_delay']
+    try:
+      self.camera_topic = config['camera_topic']
+      self.light_switch = config['light_switch']
+      self.min_light_level = config['min_light_level']
+      self.retrigger_delay = config['retrigger_delay']
+      self.snapshot_delay = config['snapshot_delay']
+    except KeyError as e:
+      logger = logging.getLogger(__name__)
+      err = "Key error in PIR Init: {}".format(e)
+      logger.error(err)
+      self.mqtt_client.publish('gserv/error', err)
+      sys.exit(2)
 
     self.mqtt_client = mqtt_client
 

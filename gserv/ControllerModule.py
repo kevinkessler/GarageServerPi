@@ -27,6 +27,9 @@ import threading
 class ControllerModule(BaseModule):
 
   def __init__(self, config_file, secure_file):
+    # Initialize self.ready to False before mqtt is initialized and
+    # starts getting messages
+    self.ready = False
     BaseModule.__init__(self, config_file, secure_file)
 
     try:
@@ -75,12 +78,15 @@ class ControllerModule(BaseModule):
     self.texter = Texter(self.mqtt_client)
     self.PIR = PIR(self.config, self.mqtt_client)
 
+    self.ready = True
     self._get_door_state()
 
   '''
   MQTT Message Handler
   '''
   def on_message(self, client, userdata, message):
+    if self.ready is False:
+      return
     msg = message.payload.decode('utf-8')
     if message.topic == self.camera_topic:
       if msg != '?':
