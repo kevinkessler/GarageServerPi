@@ -78,6 +78,10 @@ class ControllerModule(BaseModule):
     self.texter = Texter(self.mqtt_client)
     self.PIR = PIR(self.config, self.mqtt_client)
 
+    self.initial_close_time = 570.0
+    self.alarm_close_time = 30.0
+    self.door_move_timer = 10.0
+
     self.ready = True
     self._get_door_state()
 
@@ -188,7 +192,7 @@ class ControllerModule(BaseModule):
   '''
   def _start_timer(self):
     if not self.on_hold and self.door_close_timer is None:
-      self.door_close_timer = threading.Timer(570.0, self._nine_thirty_timer)
+      self.door_close_timer = threading.Timer(self.initial_close_time, self._nine_thirty_timer)
       self.door_close_timer.start()
       logger = logging.getLogger(__name__)
       logger.debug("Starting Door Timer {}".format(self.door_close_timer.getName()))
@@ -225,7 +229,7 @@ class ControllerModule(BaseModule):
     logger = logging.getLogger(__name__)
     logger.debug("9:30 Timer Expired")
     self._piezo("ON")
-    self.door_close_timer = threading.Timer(30.0, self._final_close_timer)
+    self.door_close_timer = threading.Timer(self.alarm_close_time, self._final_close_timer)
     self.door_close_timer.start()
 
   '''
@@ -241,7 +245,8 @@ class ControllerModule(BaseModule):
     self.mqtt_client.publish(self.door_control_topic, "HIGH")
     self._piezo("OFF")
     self.force_close = True
-    self.command_response_timer = threading.Timer(10.0, self._door_move_failed)
+    self.command_response_timer = threading.Timer(self.door_move_timer,
+      self._door_move_failed)
     self.command_response_timer.start()
 
   '''
@@ -269,6 +274,15 @@ class ControllerModule(BaseModule):
       self.mqtt_client.publish(self.piezo_topic, "LOW")
     else:
       self.mqtt_client.publish(self.piezo_topic, "HIGH")
+
+  '''
+  Test helper to speed up tests by shorting up the close timers
+  '''
+  def set_alarm_times(self, initial, alarm, door_move, camera_delay):
+    self.initial_close_time = initial
+    self.alarm_close_time = alarm
+    self.door_move_timer = door_move
+    self.texter.camera_delay = camera_delay
 
 
 def main():

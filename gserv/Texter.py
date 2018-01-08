@@ -114,5 +114,5 @@ class Texter():
   def _failed_pic(self, message_text):
     logger = logging.getLogger(__name__)
     logger.error("Texter timed out waiting for picture")
-
+    self.pic_timer = None
     self._mail_text(message_text, None)
