@@ -19,6 +19,8 @@ from gserv.BaseModule import BaseModule
 from gserv.Texter import Texter
 import time
 import logging
+import threading
+
 
 '''
 This module generates periodic logging under the tag of heartbeat, which can be monitored
@@ -31,6 +33,10 @@ class HeartbeatModule(BaseModule):
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
     self.Texter = Texter()
+    # Wait to send text until OPI is completely up
+    threading.Timer(60, self._send_text).start()
+
+  def _send_text(self):
     self.Texter.send_text("Heartbeat Module Started")
 
   def run(self):
