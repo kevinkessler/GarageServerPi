@@ -116,7 +116,7 @@ class ControllerModule(BaseModule):
   '''
   def _process_inputs(self, input, state):
     if input == self.hold_input:
-      if state == "HIGH":
+      if state == "LOW":
         self._process_hold()
     elif input == self.pir_input:
       self.PIR.motion_detected(state)

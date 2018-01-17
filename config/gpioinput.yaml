@@ -45,5 +45,5 @@ inputs:
   - topic: 'gserv/gpioinput/hold'
     pin: 15
     pupdown: PUD_OFF
-    edge_type: INT_EDGE_RISING
+    edge_type: INT_EDGE_FALLING
     debounce: 5
