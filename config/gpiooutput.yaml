@@ -44,4 +44,4 @@ outputs:
   - topic: 'gserv/gpiooutput/hold_led'
     pin: 5
     type: 'toggle'
-    initial_state: 'LOW'
+    initial_state: 'HIGH'

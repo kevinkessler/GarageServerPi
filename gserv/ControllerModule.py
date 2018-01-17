@@ -211,14 +211,14 @@ class ControllerModule(BaseModule):
       self._stop_timer()
       self.on_hold = True
       self._set_ring_leds("HOLD")
-      self.mqtt_client.publish(self.hold_led, "HIGH")
+      self.mqtt_client.publish(self.hold_led, "LOW")
       logger.info("HOLD ON")
     else:
       self.on_hold = False
       if self.current_state == self.states.OPENED:
         self._start_timer()
       self._set_ring_leds(self.current_state.name)
-      self.mqtt_client.publish(self.hold_led, "LOW")
+      self.mqtt_client.publish(self.hold_led, "HIGH")
       logger.info("HOLD OFF")
 
   '''
