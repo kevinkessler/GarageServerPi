@@ -12,7 +12,7 @@ logging:
       level: DEBUG
 
   root:
-    level: INFO
+    level: DEBUG
     handlers:
       - loggly_handler
 

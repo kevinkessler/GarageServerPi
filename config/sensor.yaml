@@ -19,10 +19,7 @@ logging:
 mqtt_client_name: Max44009Module
 max_addr: 0x4a
 lux_topic: gserv/sensors/lux
-si_addr: 0x40
+hih_addr: 0x27
 temp_topic: gserv/sensors/temp
 hum_topic: gserv/sensors/hum
-hih_addr: 0x27
-temp_topic2: gserv/sensors/temp2
-hum_topic2: gserv/sensors/hum2
 sub_topic: gserv/sensors
