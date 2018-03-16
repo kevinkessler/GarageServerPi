@@ -30,8 +30,6 @@ class ThingspeakModule(BaseModule):
       self.lux_topic = self.config['lux_topic']
       self.temp_topic = self.config['temp_topic']
       self.hum_topic = self.config['hum_topic']
-      self.temp_topic2 = self.config['temp_topic2']
-      self.hum_topic2 = self.config['hum_topic2']
       self.api_key = self.config['thingspeak_api_key']
     except KeyError as e:
       logger = logging.getLogger(__name__)
@@ -41,10 +39,8 @@ class ThingspeakModule(BaseModule):
       sys.exit(2)
 
     self.lux = -1
-    self.temp1 = -1
-    self.hum1 = -1
-    self.temp2 = -1
-    self.hum2 = -1
+    self.temp = -1
+    self.hum = -1
 
   def run(self):
     self.mqtt_client.loop_start()
@@ -56,8 +52,7 @@ class ThingspeakModule(BaseModule):
       cpu_temp = int(t)
 
       payload = ('api_key=' + self.api_key + '&field1=' + self.lux +
-        '&field2=' + self.temp1 + '&field3=' + self.hum1 + '&field4=' +
-        self.temp2 + '&field5=' + self.hum2 + '&field6=' + str(cpu_temp))
+        '&field2=' + self.temp + '&field3=' + self.hum + '&field4=' + str(cpu_temp))
       r = requests.post('https://api.thingspeak.com/update', data=payload)
       if r.status_code != 200:
         logger = logging.getLogger(__name__)
@@ -68,16 +63,14 @@ class ThingspeakModule(BaseModule):
     if message.topic == self.lux_topic:
       self.lux = msg
     elif message.topic == self.temp_topic:
-      self.temp1 = msg
+      self.temp = msg
     elif message.topic == self.hum_topic:
-      self.hum1 = msg
-    elif message.topic == self.temp_topic2:
-      self.temp2 = msg
-    elif message.topic == self.hum_topic2:
-      self.hum2 = msg
+      self.hum = msg
+
     else:
       logger = logging.getLogger(__name__)
       logger.warn("Unknown Sensor Reading on {}, {}".format(message.topic, msg))
+
 
 def main():
   thingMod = ThingspeakModule('config/thingspeak.yaml', 'config/secure.yaml')

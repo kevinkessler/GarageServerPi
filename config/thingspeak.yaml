@@ -20,7 +20,5 @@ mqtt_client_name: ThingSpeakModule
 lux_topic: gserv/sensors/lux
 temp_topic: gserv/sensors/temp
 hum_topic: gserv/sensors/hum
-temp_topic2: gserv/sensors/temp2
-hum_topic2: gserv/sensors/hum2
 sub_topic: 'gserv/sensors/#'
 thingspeak_api_key: {{ thingspeak_key }}

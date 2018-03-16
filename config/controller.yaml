@@ -50,7 +50,7 @@ light_switch: 'gserv/switch/light'
 # time to wait before processing another PIR event
 retrigger_delay: 300
 # time to wait from sensed mostion to actually taking the picture
-snapshot_delay: 2
+snapshot_delay: 10
 
 
 
