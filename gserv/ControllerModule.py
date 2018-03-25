@@ -66,7 +66,7 @@ class ControllerModule(BaseModule):
     self.force_close = False
 
     self.led_mapping = {
-      "CLOSED": "GREENCLOCKWISE",
+      "CLOSED": "GREEN_CLOCKWISE",
       "OPENED": "COUNTDOWN",
       "CLOSING": "CYAN_COUNTERCLOCKWISE",
       "OPENING": "CYAN_CLOCKWISE",

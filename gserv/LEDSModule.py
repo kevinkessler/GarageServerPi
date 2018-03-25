@@ -48,6 +48,7 @@ class LedsModule(BaseModule):
     self.pattern_classes = {
       "BLANK": SolidPattern,
       "GREEN_CLOCKWISE": SpinPattern,
+      "GREEN_COUNTERCLOCKWISE": SpinPattern,
       "RED_CLOCKWISE": SpinPattern,
       "RED_COUNTERCLOCKWISE": SpinPattern,
       "BLUE_CLOCKWISE": SpinPattern,

@@ -58,6 +58,8 @@ class CameraModule(BaseModule):
     self.flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 
     pygame.camera.init()
+    # Silence Google's cache_discovery warnings
+    logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
   def run(self):
     self.mqtt_client.loop_forever()

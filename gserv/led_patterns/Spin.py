@@ -45,7 +45,7 @@ class SpinPattern():
 
     if self.current_color is not None:
       for l in self.current_color:
-        for x in range(0, 2):
+        for x in range(0, 3):
           l[x] = int(l[x] / 1.5)
           if l[x] != 0 and l[x] < 4:
             l[x] = 0x64
