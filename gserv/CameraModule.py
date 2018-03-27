@@ -57,9 +57,10 @@ class CameraModule(BaseModule):
 
     self.flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 
-    pygame.camera.init()
-    # Silence Google's cache_discovery warnings
+    # Fix for spurious google file_cache error
     logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+    
+    pygame.camera.init()
 
   def run(self):
     self.mqtt_client.loop_forever()
@@ -84,18 +85,21 @@ class CameraModule(BaseModule):
       logger.error("Camera Error: {}".format(err))
       return
 
-    filename = self.picture_prefix + "{:%Y%m%d%H%M%S}.jpg".format(datetime.datetime.now())
-    pPath = os.path.join(self.picture_path, filename)
-    try:
-      image = cam.get_image()
-      pygame.image.save(image, pPath)
-      cam.stop()
-    except Exception as err:
-      logger.debug("Camera Error: {}".format(err))
-      return
+    for x in range(0, 3):
+      filename = self.picture_prefix + "{:%Y%m%d%H%M%S}-{}.jpg".format(datetime.datetime.now(), x)
+      pPath = os.path.join(self.picture_path, filename)
+      try:
+        image = cam.get_image()
+        pygame.image.save(image, pPath)
+        #cam.stop()
+      except Exception as err:
+        logger.debug("Camera Error: {}".format(err))
+        return
 
-    self.mqtt_client.publish(self.camera_topic, pPath)
-    self._google_upload_photo(pPath)
+      self.mqtt_client.publish(self.camera_topic, pPath)
+      self._google_upload_photo(pPath)
+
+    cam.stop()
 
   '''
   _get_google_credentials stolen from Google's example app and slightly modified.

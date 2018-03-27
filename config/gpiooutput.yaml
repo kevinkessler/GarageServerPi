@@ -40,7 +40,7 @@ outputs:
   - topic: 'gserv/gpiooutput/piezo'
     pin: 4
     type: 'toggle'
-    initial_state: 'HIGH'
+    initial_state: 'LOW'
   - topic: 'gserv/gpiooutput/hold_led'
     pin: 5
     type: 'toggle'
