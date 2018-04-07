@@ -1,0 +1,25 @@
+logging:
+  version: 1
+  formatters:
+    loggly_formatter:
+        format: '{ "time":"%(asctime)s","name":"%(name)s","levelname":"%(levelname)s","lineno":"%(lineno)s","module":"%(module)s","message":"%(message)s"}'
+
+  handlers:
+    loggly_handler:
+      class: loggly.handlers.HTTPSHandler
+      formatter: loggly_formatter
+      url: "https://logs-01.loggly.com/inputs/{{ loggly_key }}/tag/gserv"
+      level: DEBUG
+
+  root:
+    level: INFO
+    handlers:
+      - loggly_handler
+
+mqtt_client_name: Max44009Module
+max_addr: 0x4a
+lux_topic: gserv/sensors/lux
+hih_addr: 0x27
+temp_topic: gserv/sensors/temp
+hum_topic: gserv/sensors/hum
+sub_topic: gserv/sensors

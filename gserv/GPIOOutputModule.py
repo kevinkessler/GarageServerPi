@@ -54,6 +54,14 @@ class GPIOOutputModule(BaseModule):
       wiringpi.pinMode(o['pin'], wiringpi.GPIO.OUTPUT)
       wiringpi.digitalWrite(o['pin'], self._gpio_value(o['initial_state']))
 
+    # Set the output enable pin to low, to let the signals flow thought the 74386 buffer
+    if 'locks' in self.config:
+      for l in self.config['locks']:
+        if 'pin' in l:
+          logger.debug('Bringing lock pin {} LOW'.format(l['pin']))
+          wiringpi.pinMode(l['pin'], wiringpi.GPIO.OUTPUT)
+          wiringpi.digitalWrite(l['pin'], wiringpi.LOW)
+
   def on_message(self, client, userdata, message):
     logger = logging.getLogger(__name__)
     msg = message.payload.decode('utf-8')
