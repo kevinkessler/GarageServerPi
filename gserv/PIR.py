@@ -52,15 +52,15 @@ class PIR():
   def motion_detected(self, motion):
     logger = logging.getLogger(__name__)
     if self.retrigger_timer is None and motion == "HIGH":
-      logger.debug("PIR Detected Motion, taking snapshot")
+      logger.debug("PIR Detected Motion, taking snapshot, Lux {}".format(self.lux_level))
       self.retrigger_timer = threading.Timer(self.retrigger_delay, self._retrigger_timer_expire)
       self.retrigger_timer.start()
       self.snapshot_timer = threading.Timer(self.snapshot_delay, self._take_snapshot)
       self.snapshot_timer.start()
       if self.lux_level is not None and self.lux_level < self.min_lux_level:
-        self.mqtt_client.publish(self.light_switch, "ON")
+        self.mqtt_client.publish(self.light_switch, "HIGH")
     else:
-      logger.debug("PIR Motion Detected, still within the retrigger delay")
+      logger.debug("PIR Motion Detected, still within the retrigger delay, Lux {}".format(self.lux_level))
 
   def _retrigger_timer_expire(self):
     self.retrigger_timer = None

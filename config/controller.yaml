@@ -45,8 +45,8 @@ light_level_topic: 'gserv/sensors/lux'
 
 #PIR Config
 # Lux value below which the lights are turned on
-min_light_level: 20
-light_switch: 'gserv/switch/light'
+min_light_level: 5
+light_switch: 'gserv/gpiooutput/light'
 # time to wait before processing another PIR event
 retrigger_delay: 300
 # time to wait from sensed mostion to actually taking the picture
