@@ -20,7 +20,7 @@ import requests
 import logging
 import time
 import sys
-
+import os
 
 class ThingspeakModule(BaseModule):
   def __init__(self, config_file, secure_file):
@@ -47,9 +47,17 @@ class ThingspeakModule(BaseModule):
 
     while True:
       time.sleep(60)
-      with open('/etc/armbianmonitor/datasources/soctemp', 'r') as f:
+
+#
+#     For the Orange Pi
+#
+#     with open('/etc/armbianmonitor/datasources/soctemp', 'r') as f:
+#       t = f.read()
+#       cpu_temp = int(t)
+
+      with open("/sys/class/thermal/thermal_zone0/temp", 'r') as f:
         t = f.read()
-      cpu_temp = int(t)
+        cpu_temp = int(t) / 1000
 
       payload = ('api_key=' + self.api_key + '&field1=' + self.lux +
         '&field2=' + self.temp + '&field3=' + self.hum + '&field4=' + str(cpu_temp))

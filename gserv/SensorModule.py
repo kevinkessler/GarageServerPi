@@ -42,7 +42,7 @@ class SensorModule(BaseModule):
       sys.exit(2)
 
   def run(self):
-    self.bus = SMBus(0)
+    self.bus = SMBus(1)
 
     # Configure MAX44009
     self.bus.write_byte_data(0x4A, 0x02, 0x00)

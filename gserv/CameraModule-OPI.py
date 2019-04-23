@@ -16,7 +16,8 @@ Copyright (C) 2018 Kevin Kessler
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 from gserv.BaseModule import BaseModule
-import picamera
+import pygame
+import pygame.camera
 import httplib2
 import sys
 import os
@@ -26,7 +27,6 @@ from oauth2client.file import Storage
 from googleapiclient.http import MediaFileUpload
 import argparse
 import datetime
-import time
 import logging
 
 '''
@@ -41,6 +41,7 @@ class CameraModule(BaseModule):
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
     try:
+      self.camera_device = self.config['camera_device']
       self.image_width = self.config['image_width']
       self.image_height = self.config['image_height']
       self.picture_path = self.config['picture_path']
@@ -58,6 +59,8 @@ class CameraModule(BaseModule):
 
     # Fix for spurious google file_cache error
     logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+    
+    pygame.camera.init()
 
   def run(self):
     self.mqtt_client.loop_forever()
@@ -74,16 +77,27 @@ class CameraModule(BaseModule):
     logger = logging.getLogger(__name__)
     logger.debug("Picture Request")
 
+    cam = pygame.camera.Camera(self.camera_device, (self.image_width, self.image_height))
+
+    try:
+      cam.start()
+    except SystemError as err:
+      logger.error("Camera Error: {}".format(err))
+      return
+
     filename = self.picture_prefix + "{:%Y%m%d%H%M%S}.jpg".format(datetime.datetime.now())
     pPath = os.path.join(self.picture_path, filename)
-    with picamera.PiCamera() as camera:
-      camera.resolution = (self.image_width, self.image_height)
-      camera.start_preview()
-      time.sleep(2)
-      camera.capture(pPath)
+    try:
+      image = cam.get_image()
+      pygame.image.save(image, pPath)
+      cam.stop()
+    except Exception as err:
+      logger.debug("Camera Error: {}".format(err))
+      return
 
     self.mqtt_client.publish(self.camera_topic, pPath)
     self._google_upload_photo(pPath)
+
 
   '''
   _get_google_credentials stolen from Google's example app and slightly modified.

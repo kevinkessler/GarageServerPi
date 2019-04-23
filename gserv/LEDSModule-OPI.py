@@ -19,7 +19,7 @@ from gserv.BaseModule import BaseModule
 from gserv.led_patterns.Spin import SpinPattern
 from gserv.led_patterns.Solid import SolidPattern
 from gserv.led_patterns.Countdown import CountdownPattern
-from rpi_ws281x import Adafruit_NeoPixel
+import wiringpi
 import logging
 import sys
 
@@ -37,7 +37,7 @@ class LedsModule(BaseModule):
     BaseModule.__init__(self, config_file, secure_file)
 
     try:
-      self.neopixel_pin = self.config['neopixel_pin']
+      self.spi_port = self.config['spi_port']
     except KeyError as e:
       logger = logging.getLogger(__name__)
       err = "Key error in LEDS Init: {}".format(e)
@@ -61,8 +61,7 @@ class LedsModule(BaseModule):
     self.current_pattern = None
 
   def run(self):
-    self.strip = Adafruit_NeoPixel(8, self.neopixel_pin, 800000, 10, False, 255, 0)
-    self.strip.begin()
+    wiringpi.wiringPiSPISetup(self.spi_port, 2500000)
     self.change_pattern("BLANK")
     self.mqtt_client.loop_forever()
 
@@ -83,12 +82,52 @@ class LedsModule(BaseModule):
     self.change_pattern(msg)
 
   def writeSPIData(self, ledList):
-    led_index = 0
-    for l in ledList:
-      self.strip.setPixelColorRGB(led_index, l[1], l[0], l[2])
-      led_index += 1
+    # 8 Leds each take 9 SPI byes and 1 extra to supress the long initial SPI bit with the OPi
+    print(ledList)
+    outbytes = [0] * (1 + 8 * 9)
+    byte_idx = 1
 
-    self.strip.show()
+    for l in ledList:
+      outbytes[byte_idx:byte_idx + 8] = self._grbToSpiData(l)
+      byte_idx += 9
+
+    wiringpi.wiringPiSPIDataRW(self.spi_port, bytes(outbytes))
+
+  '''
+  Convert the grb ws2812b data to a string of spi data.  Each bit is 0.4 uS (1/2,500,000 Hz) to get each bit of the
+  ws2812b data to be 1.20uS long (3 bits).  1's are encoded as 110, .80uS high, .4 uS low. 0's are encoded as 100,
+  .40uS high, .80uS low.  The orange Pi has a weird long starting bit (10uS longer than it is supposed to), which throws off the timing,
+  so a 0 byte is sent out the SPI pin first, before the actual bit stream is sent
+  '''
+  def _grbToSpiData(self, grb):
+    retbytes = [0] * 9
+    shift_bit = 5
+    idx = 0
+    for x in grb:
+      for b in range(7, -1, -1):
+        if x & 1 << b:
+          bit_pat = 6
+        else:
+          bit_pat = 4
+
+        if shift_bit > -1:
+          retbytes[idx] |= bit_pat << shift_bit
+          shift_bit -= 3
+        else:
+          '''
+          shift bits right to fill out the last of the byte (shift_byte is negitive here)
+          '''
+          retbytes[idx] |= bit_pat >> -shift_bit
+
+          '''
+          get the remainder by masking out the bits from the last byte (2 ^ bits) -1, and shift
+          the remainder to the front of the next byte
+          '''
+          idx += 1
+          retbytes[idx] |= ((pow(2, -shift_bit) - 1) & bit_pat) << 8 + shift_bit
+          shift_bit = 8 + shift_bit - 3
+
+    return retbytes
 
 
 def main():

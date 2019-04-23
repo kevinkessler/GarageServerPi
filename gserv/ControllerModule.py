@@ -181,6 +181,7 @@ class ControllerModule(BaseModule):
     logger.debug("Stopping Door Timer")
     self._piezo("OFF")
     self.on_hold = False
+    self.mqtt_client.publish(self.hold_led, "LOW")
     if self.door_close_timer is not None:
       logger.debug("Stopping timer {}".format(self.door_close_timer.getName()))
       self.door_close_timer.cancel()

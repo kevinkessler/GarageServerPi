@@ -18,9 +18,8 @@ logging:
 
 mqtt_client_name: CameraModule
 sub_topic: 'gserv/camera'
-camera_device: '/dev/video0'
-image_width: 1024
-image_height: 1280
+image_width: 1920
+image_height: 1080
 picture_path: '/opt/nfs/gserv-pictures'
 picture_prefix: 'gserv-'
 google_folder: 'GarageDoorPics'
