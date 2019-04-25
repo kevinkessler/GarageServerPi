@@ -1,0 +1,22 @@
+logging:
+  version: 1
+  formatters:
+    loggly_formatter:
+        format: '{ "time":"%(asctime)s","name":"%(name)s","levelname":"%(levelname)s","lineno":"%(lineno)s","module":"%(module)s","message":"%(message)s"}'
+
+  handlers:
+    loggly_handler:
+      class: loggly.handlers.HTTPSHandler
+      formatter: loggly_formatter
+      url: "https://logs-01.loggly.com/inputs/{{ loggly_key }}/tag/gserv"
+      level: DEBUG
+
+  root:
+    level: DEBUG
+    handlers:
+      - loggly_handler
+
+mqtt_client_name: LightModule
+sub_topic: "gserv/#"
+on_time: 600
+light_switch: 'gserv/gpiooutput/light'
