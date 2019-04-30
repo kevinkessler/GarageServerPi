@@ -10,6 +10,10 @@ logging:
       formatter: loggly_formatter
       url: "https://logs-01.loggly.com/inputs/{{ loggly_key }}/tag/gserv"
       level: DEBUG
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: loggly_formatter
 
   root:
     level: DEBUG
@@ -20,3 +24,5 @@ mqtt_client_name: LightModule
 sub_topic: "gserv/#"
 on_time: 600
 light_switch: 'gserv/gpiooutput/light'
+light_level_topic: 'gserv/sensors/lux'
+light_control_topic: 'gserv/light'

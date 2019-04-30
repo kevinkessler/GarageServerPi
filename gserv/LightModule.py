@@ -23,49 +23,62 @@ class LightModule(BaseModule):
 
   def __init__(self, config_file, secure_file):
     BaseModule.__init__(self, config_file, secure_file)
+    self.logger = logging.getLogger(__name__)
     try:
       self.on_time = self.config['on_time']
       self.light_switch = self.config['light_switch']
       self.light_level_topic = self.config['light_level_topic']
       self.light_control_topic = self.config['light_control_topic']
     except KeyError as e:
-      logger = logging.getLogger(__name__)
       err = "Key error in Camera Init: {}".format(e)
-      logger.error(err)
+      self.logger.error(err)
       self.mqtt_client.publish('gserv/error', err)
       sys.exit(2)
 
     self.cur_lux = -1
     self.lighting_timer = None
 
+  def run(self):
+    self.mqtt_client.loop_forever()
+
+
   def on_message(self, client, userdata, message):
     msg = message.payload.decode('utf-8')
     if message.topic == self.light_control_topic:
       if msg == 'ON':
-        self._turn_on()
+        # Cheat to spawn new thread outside the MQTT client thread
+        on_thread=threading.Timer(0.001,self._turn_on)
+        on_thread.start()
       elif msg == 'OFF':
-        self._turn_off()
+        off_thread=threading.Timer(0.001,self._turn_off)
+        off_thread.start()
     elif message.topic == self.light_level_topic:
-      self.cur_lux = msg
+      self.cur_lux = float(msg)
 
   def _turn_on(self):
     before_lux = self.cur_lux
-    self.mqtt_client.publish(self.light_level_topic, "HIGH")
+    self.logger.debug("Activating Light")
+    self.mqtt_client.publish(self.light_switch, "HIGH")
     time.sleep(5)
     if self.cur_lux < before_lux + 1:
-      self.mqtt_client.publish(self.light_level_topic, "HIGH")
-    self.lighting_timer = threading.Timer(self.on_time, self._turn_off())
+      self.logger.debug("Light Level went down, turning light back on")
+      self.mqtt_client.publish(self.light_switch, "HIGH")
+    self.lighting_timer = threading.Timer(self.on_time, self._turn_off)
+    self.lighting_timer.start()
 
   def _turn_off(self):
     if self.lighting_timer is not None:
-      self.lighting_timer.stop()
+      self.logger.debug("Timer expired, deactivating light")
+      self.lighting_timer.cancel()
       self.lighting_timer = None
 
     before_lux = self.cur_lux
-    self.mqtt_client.publish(self.light_level_topic, "HIGH")
+    self.logger.debug("Deactivating Light")
+    self.mqtt_client.publish(self.light_switch, "HIGH")
     time.sleep(5)
     if self.cur_lux > before_lux + 1:
-      self.mqtt_client.publish(self.light_level_topic, "HIGH")
+      self.logger.debug("Light Level went up, turning light back off")
+      self.mqtt_client.publish(self.light_switch, "HIGH")
 
 
 def main():

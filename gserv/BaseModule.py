@@ -54,7 +54,7 @@ class BaseModule(object):
 
     self.config = merge_yaml(config_file, secure_file)
     if 'Error' in self.config:
-      print("Error {}".self.config['Error'])
+      print("Error {}".format(self.config['Error']))
       sys.exit(2)
 
     if 'logging' in self.config:

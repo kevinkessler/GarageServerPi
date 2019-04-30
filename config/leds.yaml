@@ -18,5 +18,5 @@ logging:
 
 mqtt_client_name: LedsModule
 sub_topic: gserv/leds
-neopixel_pin: 10
+neopixel_pin: 12
 top_led: 2
