@@ -31,7 +31,7 @@ class MailSensorModule(BaseModule):
 
 
 def main():
-  mail = MailSensorModule('./mailsensor.yaml', './secure.yaml')
+  mail = MailSensorModule('config/mailsensor.yaml', 'config/secure.yaml')
   logger = logging.getLogger(__name__)
   logger.info("MailSensorModule starting")
   mail.run()
