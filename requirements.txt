@@ -21,7 +21,7 @@ requests==2.21.0
 requests-futures==0.9.7
 requests-oauthlib==1.2.0
 rpi-ws281x==4.1.0
-rsa==4.0
+rsa==4.7
 six==1.12.0
 smbus2==0.2.3
 uritemplate==3.0.0
